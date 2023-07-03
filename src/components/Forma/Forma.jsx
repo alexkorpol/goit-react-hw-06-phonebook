@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Button, Form, Input, Label, Span } from './Forma.styled';
 import { nanoid } from 'nanoid'
+import { Notify } from 'notiflix';
+import { useSelector, useDispatch } from 'react-redux';
+import { visibleContacts } from 'redux/selectors';
+import { addContact } from 'redux/contactsSlice';
 
-export default function Forma({onSubmit}) {
+export default function Forma() {
+  const contacts = useSelector(visibleContacts);
+  const dispatch = useDispatch();
+
   const INITIAL_STATE = {
   nameNew: '',
   numberNew: '',
@@ -22,7 +29,30 @@ export default function Forma({onSubmit}) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit({ nameNew, numberNew });
+
+    // ! ====== Add contact to state ======
+    const newNameToLowerCase = nameNew.toLowerCase();
+    const nameAndNumberIsExistIndex = (contacts.findIndex(({ name, number }) => (name.toLowerCase() === newNameToLowerCase && number === numberNew)))
+
+    if (nameAndNumberIsExistIndex >= 0) {
+        Notify.failure(`${contacts[nameAndNumberIsExistIndex].name} and number ${contacts[nameAndNumberIsExistIndex].number}   is already in list contacts`);
+        resetForm();
+        return;
+    }
+
+      const numberIsExistIndex = (contacts.findIndex(({ number }) => (number === numberNew)))
+    if(numberIsExistIndex >= 0) {
+        Notify.failure(`This number ${contacts[numberIsExistIndex].number} is already in list contacts ${contacts[numberIsExistIndex].name}`);
+        resetForm();
+        return;
+    }
+
+    const newContact = {
+      id: nanoid(),
+      name: nameNew,
+      number: numberNew,
+    };
+    dispatch(addContact( newContact ))
     resetForm();
   };
 

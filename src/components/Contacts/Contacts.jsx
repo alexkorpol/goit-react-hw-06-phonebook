@@ -1,16 +1,24 @@
 import React from 'react';
 import { Item, List } from './Contacts.styled';
 import { Button, Span } from 'components/Forma/Forma.styled';
-import PropTypes from 'prop-types';
 
-const Contacts = ({ contacts, pressDeleteContact }) => {
+import { useSelector, useDispatch } from 'react-redux';
+import { visibleContacts } from 'redux/selectors';
+import { pressDeleteContact } from 'redux/contactsSlice';
+
+
+
+const Contacts = () => {
+  const contacts = useSelector(visibleContacts);
+
+  const dispatch = useDispatch();
   return (
     <List>
       {contacts.map(({ id, name, number }) => (
         <Item key={id}>
           {name + ' : ' + number}
           <Button type="button"
-            onClick={() => pressDeleteContact(id)}
+            onClick={() => dispatch(pressDeleteContact(id))}
           >
             <Span>Delete</Span>
           </Button>
@@ -20,13 +28,6 @@ const Contacts = ({ contacts, pressDeleteContact }) => {
   );
 };
 
-Contacts.propTypes = {
-  contacts: PropTypes.array.isRequired
-};
+
 
 export default Contacts;
-
-
-
-
-
